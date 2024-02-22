@@ -18,9 +18,8 @@ This repository contains the course's project and notes for the final exam.
 
 ## TODOs
 
-- [ ] The code I put on analysis is still on experimental stage. I gathered some scripts I already have.
-- [ ] We have to work on the interpreation of the PCAs and check it furtherly.
-- [ ] Any other suggestion.
+- [X] The code I put on analysis is still on experimental stage. I gathered some scripts I already have.
+- [ ] We have to work on the interpretation of the PCAs and check it furtherly.
 
 ## Requirements
 
