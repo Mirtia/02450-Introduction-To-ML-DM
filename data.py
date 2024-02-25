@@ -15,7 +15,7 @@ df.dtypes
 # drop the column 'row.names'
 df=df.drop('row.names', axis=1) 
 df=df.drop('adiposity', axis=1)
-#df=df.drop('alcohol', axis=1)
+
 # extract the information/datatype from the 'famhist' column and convert it to numeric
 mapping = {'Present': 1, 'Absent': 0}
 df['famhist'] = df['famhist'].map(mapping)
@@ -25,33 +25,27 @@ df['famhist'] = pd.to_numeric(df['famhist'])
 df['typea'] = df['typea'].apply(lambda x: 1 if x >= 55 else 0)
 
 # table with statistics for the attributes 
-df.describe()
+print(df.describe())
 
 # Pearson correlation heatmap, to investigate the connection of CHD with other attributes (BEFORE STANDARDIZATION):
 df_cor=df[['chd','sbp','tobacco','ldl','famhist','typea','obesity','age','alcohol']]
-plt.figure(figsize=(15,9))
+num_columns = len(df_cor.columns)
+plt.figure(figsize=(num_columns*1.5, num_columns))
 sb.heatmap(df_cor.corr(method="pearson"), annot=True, annot_kws={"size":10})
-    
-#plt.tight_layout()
-#plt.show()
+plt.show()
 
+# Boxplots for the continuous attributes
+boxplot_columns = ['sbp', 'tobacco', 'ldl', 'obesity', 'alcohol', 'age']
+boxplot_num = len(boxplot_columns)
 
-#plt.show()
+plt.figure(figsize=(10, 6))
+sb.boxplot(data=df[boxplot_columns], orient="h", showfliers=True, showmeans=True, patch_artist=True, boxprops = dict(facecolor = "lightblue"),meanline = True, meanprops = dict(color = "green", linewidth=1), medianprops = dict(color = "blue", linewidth = 1))
+plt.xlabel("Value")
+plt.ylabel("Attribute")
+plt.grid(True)
+plt.show()
 
-#df.boxplot(column='sbp', showfliers=True, showmeans=True, patch_artist=True, boxprops = dict(facecolor = "lightblue"),meanline = True, meanprops = dict(color = "green", linewidth=1), medianprops = dict(color = "blue", linewidth = 1))
-#plt.show()
-#df.boxplot(column='tobacco', showfliers=True, showmeans=True, patch_artist=True, boxprops = dict(facecolor = "lightblue"),meanline = True, meanprops = dict(color = "green", linewidth=1), medianprops = dict(color = "blue", linewidth = 1))
-#plt.show()
-#df.boxplot(column='ldl', showfliers=True, showmeans=True, patch_artist=True, boxprops = dict(facecolor = "lightblue"),meanline = True, meanprops = dict(color = "green", linewidth=1), medianprops = dict(color = "blue", linewidth = 1))
-#plt.show()
-#df.boxplot(column='typea', showfliers=True, showmeans=True, patch_artist=True, boxprops = dict(facecolor = "lightblue"),meanline = True, meanprops = dict(color = "green", linewidth=1), medianprops = dict(color = "blue", linewidth = 1))
-#plt.show()
-#df.boxplot(column='obesity', showfliers=True, showmeans=True, patch_artist=True, boxprops = dict(facecolor = "lightblue"),meanline = True, meanprops = dict(color = "green", linewidth=1), medianprops = dict(color = "blue", linewidth = 1))
-#plt.show()
-
-
-# scatterplots
-
+# Matrix of scatterplots of the attributes
 column_scatter_1 = ['sbp', 'tobacco', 'ldl', 'famhist'] 
 column_scatter_2 = ['typea', 'obesity', 'age', 'alcohol']
 num_cols_1 = len(column_scatter_1)
@@ -66,7 +60,6 @@ for i, column1 in enumerate(column_scatter_1):
         axes[i, j].set_title(f"Scatterplot of {column1} with {column2}")
 
 plt.tight_layout()
-#plt.show()
 
 fig, axes = plt.subplots(num_cols_2, num_cols_2, figsize=(15, 15))
 
@@ -76,16 +69,36 @@ for i, column1 in enumerate(column_scatter_2):
         axes[i, j].set_title(f"Scatterplot of {column1} with {column2}")
 
 plt.tight_layout()
-#plt.show()
 
-# Assuming df is your DataFrame containing the data
-# and 'sbp' is the column for which you created the boxplot
+fig, axes = plt.subplots(num_cols_1, num_cols_2, figsize=(15, 15))
 
-columns_of_interest = ['sbp', 'tobacco', 'ldl', 'typea', 'obesity', 'age', 'alcohol']
+for i, column1 in enumerate(column_scatter_1):
+    for j, column2 in enumerate(column_scatter_2):
+        df.plot(kind='scatter', x=column1, y=column2, c='chd', cmap='coolwarm', alpha=0.7, ax=axes[i, j])
+        axes[i, j].set_title(f"Scatterplot of {column1} with {column2}")
 
-# Dictionary to store the count of outliers for each column
-outlier_counts = {}
-outliers_percentiles = {}
+plt.tight_layout()
+
+# Plot the distribution of the attributes (before standardization and left skewness normalization)
+sb.set_style("whitegrid", {"grid_linestyle": "--"})
+columns = ['sbp', 'tobacco', 'ldl', 'obesity', 'alcohol']
+num_plots = len(columns)
+num_rows = math.ceil(num_plots / 2)
+num_columns = 2
+
+fig, axes = plt.subplots(num_rows, num_columns, figsize=(12, 12))
+axes = axes.ravel()
+for i, column in enumerate(columns):
+    sb.histplot(df[column], ax=axes[i], kde=True)
+    axes[i].set_title(f"Distribution of {column}")
+    axes[i].set_xlabel(column)
+    axes[i].grid(axis="y", linestyle="--", alpha=0.6)
+    plt.xlim(xmin=0)
+
+if num_plots % 2 != 0:
+    axes.flat[-1].set_visible(False)
+
+plt.show()
 
 # standardise data (subtract median and divide by deviation)
 df['sbp'] = (df['sbp'] - df['sbp'].mean()) / df['sbp'].std()
@@ -103,7 +116,7 @@ df['alcohol'] = np.where(df['alcohol'] > 0, np.log(df['alcohol']), df['alcohol']
 
 # Plot the distribution of the attributes
 sb.set_style("whitegrid", {"grid_linestyle": "--"})
-columns = ['sbp', 'tobacco', 'ldl', 'obesity', 'alcohol', 'age']
+columns = ['sbp', 'tobacco', 'ldl', 'obesity', 'alcohol']
 num_plots = len(columns)
 num_rows = math.ceil(num_plots / 2)
 num_columns = 2
