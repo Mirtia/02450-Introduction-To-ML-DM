@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import math
+import statsmodels.api as sm
 import numpy as np
 import pandas as pd
 import seaborn as sb
@@ -114,6 +115,9 @@ df['alcohol'] = (df['alcohol'] - df['alcohol'].mean()) / df['alcohol'].std()
 df['tobacco'] = np.where(df['tobacco'] > 0, np.log(df['tobacco']), df['tobacco'])
 df['alcohol'] = np.where(df['alcohol'] > 0, np.log(df['alcohol']), df['alcohol'])
 
+# table with statistics for the attributes 
+print(df.describe())
+
 # Plot the distribution of the attributes
 sb.set_style("whitegrid", {"grid_linestyle": "--"})
 columns = ['sbp', 'tobacco', 'ldl', 'obesity', 'alcohol']
@@ -133,4 +137,41 @@ for i, column in enumerate(columns):
 if num_plots % 2 != 0:
     axes.flat[-1].set_visible(False)
 
+plt.show()
+
+# Attributes for QQ plot
+qqplot_attributes1 = ['tobacco', 'alcohol']
+qqplot_attributes2 = ['ldl', 'obesity']
+qqplot_attributes3 = ['sbp']
+
+# Create subplots
+fig, axes = plt.subplots(len(qqplot_attributes1), 1, figsize=(8, 6*len(qqplot_attributes1)))
+
+# Plot QQ plots for each attribute
+for i, attr in enumerate(qqplot_attributes1):
+    sm.qqplot(df[attr], line ='45', ax=axes[i])
+    axes[i].grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# Create subplots
+fig, axes = plt.subplots(len(qqplot_attributes2), 1, figsize=(8, 6*len(qqplot_attributes2)))
+
+# Plot QQ plots for each attribute
+for i, attr in enumerate(qqplot_attributes2):
+    sm.qqplot(df[attr], line ='45', ax=axes[i])
+    axes[i].grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# Create subplots
+fig, axes = plt.subplots(len(qqplot_attributes3), 1, figsize=(8, 6*len(qqplot_attributes3)))
+
+# Plot QQ plots for each attribute
+sm.qqplot(df['sbp'], line ='45', ax=axes)
+axes.grid(True)
+
+plt.tight_layout()
 plt.show()
