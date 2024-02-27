@@ -20,3 +20,7 @@ Number of rows (records): 462
 ## Classification Task
 
 ## Regression Task
+
+## Expectations
+
+adiposity is highly correlated with obesity
