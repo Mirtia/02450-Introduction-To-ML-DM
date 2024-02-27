@@ -7,6 +7,7 @@ import seaborn as sb
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from scipy.linalg import svd
+from sklearn.preprocessing import StandardScaler
 
 df=pd.read_csv("projectdataset.csv")
 df.head()
@@ -108,6 +109,8 @@ df['ldl'] = (df['ldl'] - df['ldl'].mean()) / df['ldl'].std()
 df['obesity'] = (df['obesity'] - df['obesity'].mean()) / df['obesity'].std()
 df['age'] = (df['age'] - df['age'].mean()) / df['age'].std()
 df['alcohol'] = (df['alcohol'] - df['alcohol'].mean()) / df['alcohol'].std()
+df['famhist'] = (df['famhist'] - df['famhist'].mean()) / df['famhist'].std()
+df['typea'] = (df['typea'] - df['typea'].mean()) / df['typea'].std()
 
 # apply left skewness normalization in 'tobacco' column
 # transform the data using a logarithmic transformation
