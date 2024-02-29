@@ -252,10 +252,13 @@ axes.grid(True)
 plt.tight_layout()
 plt.show()
 
+# Drop chd attribute
+df=df.drop('chd', axis=1)
+
 # Number of PCA's and variance captured
 # The number of components is experimental at this stage
 # Choosing the correct number of principal components is crucial
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+numbers = [1, 2, 3, 4, 5, 6, 7, 8]
 variance_ratios = []
 
 # Trying out the different numbers
@@ -265,7 +268,7 @@ for number in numbers:
   variance_ratios.append(np.sum(pca_.explained_variance_ratio_))
   print(f"Number of components\t{number}\tTotal variance\t{sum(pca_.explained_variance_ratio_)}")
 
-plt.figure(figsize=(4, 4))
+plt.figure(figsize=(2, 4))
 plt.plot(numbers, variance_ratios, marker="o")
 plt.xlabel("n_components")
 plt.ylabel("Explained Variance Ratio")
@@ -351,8 +354,8 @@ principalComponents = pca.fit_transform(df)
 
 PCAs = pd.DataFrame(data=principalComponents, columns=['PC1', 'PC2', 'PC3'])
 
-# Set up a 3x4 subplot (we have 9 attributes)
-fig, axs = plt.subplots(3, 4, subplot_kw={'projection': '3d'}, figsize=(20, 10))
+# Set up a 2x4 subplot (we have 8 attributes)
+fig, axs = plt.subplots(2, 4, subplot_kw={'projection': '3d'}, figsize=(20, 10))
 
 axs = axs.flatten()
 
@@ -369,8 +372,8 @@ for i, attribute in enumerate(df.columns):
     ax.set_zlabel('PC3')
     ax.set_title(f'{attribute}')
 
-if len(df.columns) < 8:
-    axs[-1].set_visible(False)  # This hides the last subplot
+#if len(df.columns) < 8:
+#    axs[-1].set_visible(False)  # This hides the last subplot
 
 
 plt.tight_layout()
@@ -381,7 +384,7 @@ principalComponents = pca.fit_transform(df)
 
 PCAs = pd.DataFrame(data=principalComponents, columns=['PC1', 'PC2', 'PC3'])
 
-fig, axs = plt.subplots(3, 4, subplot_kw={'projection': '3d'}, figsize=(20, 10))
+fig, axs = plt.subplots(2, 4, subplot_kw={'projection': '3d'}, figsize=(20, 10))
 
 axs = axs.flatten()
 
@@ -427,8 +430,8 @@ for i, attribute in enumerate(df.columns):
         ax.quiver(mean_of_data[0], mean_of_data[1], mean_of_data[2], 
                   vector[0], vector[1], vector[2], color=["r", "g", "b"][j], alpha=1.0, lw=2)
 
-if len(df.columns) < 10:
-    axs[-1].set_visible(False)
+#if len(df.columns) < 10:
+#    axs[-1].set_visible(False)
 
 plt.tight_layout()
 plt.show()
