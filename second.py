@@ -61,7 +61,7 @@ y = df['sbp'] # Target variable
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Define range of lambda values to test
-lambdas = np.power(10.0, range(-10, 9))
+lambdas = np.logspace(-2, 7, 50)
 
 all_errors = {}
 
@@ -75,6 +75,8 @@ kf = KFold(n_splits=n_folds, shuffle=True, random_state=42)
 
 fold_number = 0
 fold_error_list = []
+best_average_error = float('inf')  # Initialize with a large value
+best_lambda = None
 # Loop through each fold
 for train_index, test_index in kf.split(X):
     fold_number += 1
@@ -112,6 +114,10 @@ for train_index, test_index in kf.split(X):
 
     all_errors[fold_number] = err_dict
 
+    # Check if the current generalization error is smaller than the best found so far
+    if generalization_error < best_average_error:
+        best_average_error = min(error_list)
+        best_lambda = lambdas[error_list.index(min(error_list))]  # Update best lambda
 
     # Append the generalization error to the list
     generalization_errors.append(generalization_error)
@@ -119,25 +125,10 @@ for train_index, test_index in kf.split(X):
 for error in all_errors:
     print(f"Fold {error}: {all_errors[error]}")
 
-# Calculate the average MSE for each lambda across all folds
-average_errors = {}
-for lmbda in lambdas:
-    # Get the errors for all folds corresponding to this lambda
-    errors_for_lambda = [all_errors[fold]['error'] for fold in all_errors if all_errors[fold]['best_lambda'] == lmbda]
-    # Calculate the average error across all folds for this lambda
-    average_errors[lmbda] = np.mean(errors_for_lambda)
-
-# Choose the lambda with the lowest average MSE
-best_lambda = min(average_errors, key=average_errors.get)
-best_average_error = average_errors[best_lambda]
-
-print(f"Best Lambda: {best_lambda}")
-print(f"Average MSE with Best Lambda: {best_average_error}")
-
 best_fold = 4
 
-print(f"Minimum Generalization Error: {min(generalization_errors)}")
-print(f"Lambda value with minimum generalization error: {lambdas[generalization_errors.index(min(generalization_errors))]}")
+print(f"Best lambda: {best_lambda}")
+print(f"Best generalization error: {best_average_error}")
 
 #Average generalisation error vs regularisation parameter (lambda)
 plt.figure(figsize=(10, 6))
@@ -148,16 +139,8 @@ plt.title('Generalization Error as a Function of λ')
 plt.grid(True)
 plt.show()
 
-# The generalization error curve remains low for a range of small lambda values (from 10^-10 to 10^2), being 10^2 the value of lambda where
-# the average generalization error is minimumm, and therefore it has been selected has the lamnda value to be used for our linear regression
-# model. From the fact that the plot exhibits a curve that remains low for a range of lambda values, we can conclude that the model benefits
-# from regularization within that range of values, which helps to prevent overfitting by penalizing large coefficients, leading to a better
-# generalization performance on unseen data. Regarding the shape of the curve, the lack of a "U-shapped" pattern suggests the model is
-# relatively robust to overfitting across, which means that even when lambda increases beyond the optimal range, the model's performance does
-# not deteriorate significantly. 
-
-feature_names = df.columns
-lambda_values = np.logspace(-1, 6, 1000)
+feature_names = df.drop(columns=['sbp']).columns
+lambda_values = np.logspace(-2, 7, 50)
 coefficients = []
 
 #fitting Ridge regression models for different lambda values and storing coefficients
@@ -178,16 +161,30 @@ plt.legend(feature_names, loc='center left', bbox_to_anchor=(1, 0.5))
 plt.axis('tight')
 plt.show()
 
-# The ridge regression "penalizes" the variable coefficients, which means that the ones that are less effective to predict the target variable
-# are faster to reach zero. In general, as alpha increases, the penalty for large coefficients also increases, decreasing the values of the 
-# coefficients. Therefore, to analyse the plot correctly, it is important to notice the flattening process of the coefficients' curves that
-# represent reaching the regularization state. If the coefficent's values remain large, then it may be a significant feature when
-# making predictions of the "sbl" variable. However, if the attribute's cofficients curve gets flat earlier than others, that can mean the
-# feature is insignificant when making predictions.
+# Create Ridge regression object with the best lambda value
+best_model = Ridge(alpha=best_lambda)
 
-# In our case, the values of the coefficients seem to start all with values smaller than 0.30 and then flattens out as the lambda increases to
-# 10^6. These results shows the effect of regularization, the importance of certain features, like the "alcohol" and "typea" attributes, 
-# due to their stronger resistance to regularization and the seemingly lack of importance of other features, like the "ldl" and "famhist" attributes
-# as they are the faster to reach to zero while increasing the value of lambda. Overall, the observed pattern in the ridge regression coefficients 
-# reflects the interplay between regularization strength, feature importance, and model complexity, leading to improved generalization performance 
-# and interpretability.
+# Fit the model on the training data
+best_model.fit(X_train, y_train)
+
+# Use the trained model to make predictions on the testing data
+y_pred = best_model.predict(X_test)
+
+# 1. Coefficient Magnitudes Plot
+plt.figure(figsize=(10, 6))
+plt.barh(feature_names, np.abs(best_model.coef_))
+plt.xlabel('Coefficient Magnitude')
+plt.ylabel('Attribute')
+plt.title('Magnitude of Coefficients')
+plt.show()
+
+# 2. Coefficient Significance Plot (using confidence intervals as error bars)
+plt.figure(figsize=(10, 6))
+ci = 1.96 * np.std(fold_error_list[best_fold-1]) / np.sqrt(len(fold_error_list[best_fold-1]))
+plt.errorbar(range(len(feature_names)), best_model.coef_, yerr=ci, fmt='o', capsize=5)
+plt.xticks(range(len(feature_names)), feature_names, rotation=45)
+plt.xlabel('Attribute')
+plt.ylabel('Coefficient Value')
+plt.title('Coefficient Significance with Confidence Intervals')
+plt.grid(True)
+plt.show()
