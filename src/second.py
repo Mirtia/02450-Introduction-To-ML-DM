@@ -12,13 +12,12 @@ from sklearn.metrics import mean_squared_error
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
 
-#import torch
 import warnings
 
 warnings.filterwarnings('ignore')
 
 # read from dataset in .csv file
-df=pd.read_csv("projectdataset.csv")
+df=pd.read_csv("../data/SAheart.csv")
 
 # display dataset's first rows, number of columns and rows and its attributes' types
 print(df.head())
@@ -26,7 +25,6 @@ print(df.shape)
 print(df.dtypes)
 
 # drop the columns 'row.names' and 'adiposity'
-df=df.drop('row.names', axis=1) 
 df=df.drop('adiposity', axis=1)
 
 # extract the information/datatype from the 'famhist' column and convert it to numeric

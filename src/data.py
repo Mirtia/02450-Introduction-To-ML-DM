@@ -19,9 +19,9 @@ print(df.shape)
 print(df.dtypes)
 
 # drop the columns 'row.names' and 'adiposity'
-df=df.drop('row.names', axis=1) 
+# for my dataset it was `id`
 df=df.drop('adiposity', axis=1)
-
+df=df.drop('id', axis=1)
 # extract the information/datatype from the 'famhist' column and convert it to numeric
 mapping = {'Present': 1, 'Absent': 0}
 df['famhist'] = df['famhist'].map(mapping)
