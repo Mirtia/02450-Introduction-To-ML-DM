@@ -20,6 +20,9 @@ import torch.optim as optim
 
 from torch.utils.data import TensorDataset, DataLoader
 
+# Try to parallelize the code
+from multiprocessing import Pool
+
 warnings.filterwarnings('ignore')
 
 # read from dataset in .csv file
@@ -249,7 +252,7 @@ def train_and_evaluate_model(model, X_train, y_train, X_val, y_val, learning_rat
 
     # Create a TensorDataset and DataLoader
     train_dataset = TensorDataset(X_train_tensor, y_train_tensor.view(-1, 1))
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=4)
     
     model.train()
     for epoch in range(epochs):
@@ -353,3 +356,27 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
 # Create and display the results DataFrame
 results_df = pd.DataFrame(results)
 print(results_df)
+
+# Statistical comparison of the models
+# 1. Ridge regression
+# 2. ANN
+# 3. Baseline Model
+# Pairwise comparisons:
+# - ANN vs. linear regression
+# - ANN vs. baseline
+# - linear regression vs. baseline
+
+# We will use paired t-test
+
+# ANN vs Ridge regression
+t_statistic, p_value = stats.ttest_rel(results_df['NN_Error'], results_df['Ridge_Error'])
+print(f"ANN vs. Ridge: t-statistic = {t_statistic}, p-value = {p_value}")
+
+# ANN vs Baseline
+t_statistic, p_value = stats.ttest_rel(results_df['Baseline_Error'], results_df['NN_Error'])    
+print(f"Baseline vs. ANN: t-statistic = {t_statistic}, p-value = {p_value}")        
+
+
+# Ridge Regression vs Baseline
+t_statistic, p_value = stats.ttest_rel(results_df['Ridge_Error'], results_df['Baseline_Error'])     
+print(f"Ridge vs. Baseline: t-statistic = {t_statistic}, p-value = {p_value}")  
