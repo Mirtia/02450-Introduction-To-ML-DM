@@ -14,6 +14,10 @@ from sklearn.model_selection import KFold
 
 import warnings
 
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
 warnings.filterwarnings('ignore')
 
 # read from dataset in .csv file
@@ -26,6 +30,7 @@ print(df.dtypes)
 
 # drop the columns 'row.names' and 'adiposity'
 df=df.drop('adiposity', axis=1)
+df=df.drop('id', axis=1)
 
 # extract the information/datatype from the 'famhist' column and convert it to numeric
 mapping = {'Present': 1, 'Absent': 0}
@@ -86,9 +91,9 @@ for train_index, test_index in kf.split(X):
     # Initialize list to store error for each fold
     error_list = []
 
-    for lmbda in lambdas:
+    for lambda_ in lambdas:
         # Create Ridge regression object
-        model = Ridge(lmbda)
+        model = Ridge(lambda_)
 
         # Fit the model on the training data for this fold
         model.fit(X_train, y_train)
@@ -186,3 +191,43 @@ plt.ylabel('Coefficient Value')
 plt.title('Coefficient Significance with Confidence Intervals')
 plt.grid(True)
 plt.show()
+
+# Regression part b
+
+# Comparison of linear regression Ridge model with an artificial Neural Network and
+# a baseline model
+
+class BaselineModel:
+    # As a baseline model, we will apply a linear regression model with no
+    # features, i.e. it computes the mean of y on the training data, and use this value
+    # to predict y on the test data
+    def __init__(self):
+        self.mean = None
+
+    def fit(self, X, y):
+        self.mean = np.mean(y)
+
+    def predict(self, X):
+        return np.full(X.shape[0], self.mean)
+
+# Define a neural network model (pytorch)
+class NeuralNetwork(torch.nn.Module):
+    # Experiment with the number of hidden units
+    def __init__(self, n_features, n_hidden_units):
+        super(MyModel, self).__init__()
+        self.linear1 = torch.nn.Linear(n_features, n_hidden_units)
+        self.tanh = torch.nn.Tanh()
+        self.linear2 = torch.nn.Linear(n_hidden_units, 1)
+
+    def forward(self, x):
+        x = self.linear1(x)
+        x = self.tanh(x)
+        x = self.linear2(x)
+        return x
+
+# Test for different hidden unit sizes (1 to 10)
+hidden_unit_sizes = list(range(1, 11))
+
+# Two-thirds rule for hidden units
+
+# Same lambda values as in the previous task (see lambdas)
