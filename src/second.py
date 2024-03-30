@@ -20,8 +20,10 @@ import torch.optim as optim
 
 from torch.utils.data import TensorDataset, DataLoader
 
-# Try to parallelize the code
+# TODO: Try to parallelize the code
 from multiprocessing import Pool
+
+import time
 
 warnings.filterwarnings('ignore')
 
@@ -291,6 +293,8 @@ outer_kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 inner_kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
 results = []
+
+time_start = time.time()
 # Outer loop
 for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
     X_train_outer, X_test_outer = X.iloc[train_idx], X.iloc[test_idx]
@@ -361,6 +365,8 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
 results_df = pd.DataFrame(results)
 print(results_df)
 
+time_end = time.time()
+print("Total time taken (two-level fold):", time_end - time_start, "sec")
 # Save results_df so that we do not need to calculate it again (read for comparisons)
 timestamp = pd.Timestamp.now()
 results_df.to_csv(f"../output/results_{timestamp}.csv", index=False)
