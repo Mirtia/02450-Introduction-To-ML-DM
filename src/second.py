@@ -215,6 +215,8 @@ class BaselineModel:
         self.mean = np.mean(y)
 
     def predict(self, X):
+        # Each element is the mean of y and size of the array is the same as the 
+        # number of samples in X
         return np.full(X.shape[0], self.mean)
 
 # Define a neural network model
@@ -364,6 +366,8 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
 # Create and display the results DataFrame
 results_df = pd.DataFrame(results)
 print(results_df)
+
+# TODO: Calculate all the errors needed for the project
 
 time_end = time.time()
 print("Total time taken (two-level fold):", time_end - time_start, "sec")
