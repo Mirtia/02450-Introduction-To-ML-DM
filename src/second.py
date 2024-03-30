@@ -310,10 +310,9 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
     # Neural Network Inner Loop for Hyperparameter Tuning
     print("Outer Fold:", i + 1)
     for h in hidden_unit_sizes:
-        print("Inner Fold:", i + 1, "Hidden Units:", h)
         nn_errors = []
-        for inner_train_idx, inner_val_idx in inner_kfold.split(X_train_outer):
-            # Splitting for inner loop
+        for j, (inner_train_idx, inner_val_idx) in enumerate(inner_kfold.split(X_train_outer)):
+            print("Inner Fold:", j + 1, "Hidden Units:", h)
             X_train_inner, X_val_inner = X_train_outer.iloc[inner_train_idx], X_train_outer.iloc[inner_val_idx]
             y_train_inner, y_val_inner = y_train_outer.iloc[inner_train_idx], y_train_outer.iloc[inner_val_idx]
             
@@ -330,9 +329,9 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
 
     # Ridge Regression Inner Loop for Hyperparameter Tuning
     for lambda_val in lambdas:
-        print("Inner Fold:", i + 1, "Lambda:", lambda_val)
         ridge_errors = []
-        for inner_train_idx, inner_val_idx in inner_kfold.split(X_train_outer):
+        for j, (inner_train_idx, inner_val_idx) in enumerate(inner_kfold.split(X_train_outer)):
+            print("Inner Fold:", j + 1, "Lambda:", lambda_val)
             X_train_inner, X_val_inner = X_train_outer.iloc[inner_train_idx], X_train_outer.iloc[inner_val_idx]
             y_train_inner, y_val_inner = y_train_outer.iloc[inner_train_idx], y_train_outer.iloc[inner_val_idx]
             
@@ -374,3 +373,5 @@ print("Total time taken (two-level fold):", time_end - time_start, "sec")
 # Save results_df so that we do not need to calculate it again (read for comparisons)
 timestamp = pd.Timestamp.now()
 results_df.to_csv(f"../output/results_{timestamp}.csv", index=False)
+
+# TODO: Plots for the results
