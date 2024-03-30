@@ -217,16 +217,19 @@ class BaselineModel:
 
 # Define a neural network model
 class NeuralNetwork(torch.nn.Module):
-    # Experiment with the number of hidden units
+    # TODO: Experiment with the number of hidden units
     def __init__(self, n_features, n_hidden_units):
         super(NeuralNetwork, self).__init__()
         self.linear1 = torch.nn.Linear(n_features, n_hidden_units)
         self.tanh = torch.nn.Tanh()
+        self.relu = torch.nn.ReLU()
         self.linear2 = torch.nn.Linear(n_hidden_units, 1)
 
     def forward(self, x):
         x = self.linear1(x)
         x = self.tanh(x)
+        # TODO: Try with ReLU as well
+        # x = self.relu(x)
         x = self.linear2(x)
         return x
 
@@ -234,6 +237,7 @@ def train_and_evaluate_model(model, X_train, y_train, X_val, y_val, learning_rat
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     
+    # TODO: Remove
     # Check if X_train, y_train, X_val, y_val are pandas DataFrames/Series and convert them to NumPy arrays
     if isinstance(X_train, pd.DataFrame):
         X_train = X_train.to_numpy()
@@ -357,26 +361,6 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
 results_df = pd.DataFrame(results)
 print(results_df)
 
-# Statistical comparison of the models
-# 1. Ridge regression
-# 2. ANN
-# 3. Baseline Model
-# Pairwise comparisons:
-# - ANN vs. linear regression
-# - ANN vs. baseline
-# - linear regression vs. baseline
-
-# We will use paired t-test
-
-# ANN vs Ridge regression
-t_statistic, p_value = stats.ttest_rel(results_df['NN_Error'], results_df['Ridge_Error'])
-print(f"ANN vs. Ridge: t-statistic = {t_statistic}, p-value = {p_value}")
-
-# ANN vs Baseline
-t_statistic, p_value = stats.ttest_rel(results_df['Baseline_Error'], results_df['NN_Error'])    
-print(f"Baseline vs. ANN: t-statistic = {t_statistic}, p-value = {p_value}")        
-
-
-# Ridge Regression vs Baseline
-t_statistic, p_value = stats.ttest_rel(results_df['Ridge_Error'], results_df['Baseline_Error'])     
-print(f"Ridge vs. Baseline: t-statistic = {t_statistic}, p-value = {p_value}")  
+# Save results_df so that we do not need to calculate it again (read for comparisons)
+timestamp = pd.Timestamp.now()
+results_df.to_csv(f"../output/results_{timestamp}.csv", index=False)
