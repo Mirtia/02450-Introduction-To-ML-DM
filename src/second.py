@@ -231,7 +231,7 @@ class NeuralNetwork(torch.nn.Module):
 
     def forward(self, x):
         x = self.linear1(x)
-        x = self.tanh(x)
+        x = self.relu(x)
         # TODO: Try with ReLU as well
         # x = self.relu(x)
         x = self.linear2(x)
@@ -318,6 +318,7 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
             # Train and evaluate the neural network model
             model = NeuralNetwork(n_features=X_train_inner.shape[1], n_hidden_units=h)
             mse = train_and_evaluate_model(model, X_train_inner, y_train_inner, X_val_inner, y_val_inner)
+            print("Inner Fold:", j + 1, "MSE:", mse)
             nn_errors.append(mse)
 
         # Average error for this hidden unit size

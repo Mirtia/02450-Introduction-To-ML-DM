@@ -1,4 +1,6 @@
 # == Format tables to latex ==
+import os
+import pandas as pd 
 # Read latest results.csv (from output directory)
 # Format to the following latex table (as shown in the project description)
 # \begin{table}[H]
@@ -18,11 +20,12 @@
 # \caption{Your table caption.}
 # \label{your-table-label}
 # \end{table}
-import os
-import pandas as pd 
 
 output_dir = '../output'  
 files = os.listdir(output_dir)  
 files.sort(reverse=True)
 latest_file = files[0]
+# Convert to latex table (with pandas)
 results_df = pd.read_csv(f"{output_dir}/{latest_file}") 
+results_df = results_df.round(1)  
+print(results_df.to_latex(index=False))
