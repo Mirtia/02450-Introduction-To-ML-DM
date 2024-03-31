@@ -315,7 +315,6 @@ for i, (train_idx, test_idx) in enumerate(outer_kfold.split(X)):
             print("Inner Fold:", j + 1, "Hidden Units:", h)
             X_train_inner, X_val_inner = X_train_outer.iloc[inner_train_idx], X_train_outer.iloc[inner_val_idx]
             y_train_inner, y_val_inner = y_train_outer.iloc[inner_train_idx], y_train_outer.iloc[inner_val_idx]
-            
             # Train and evaluate the neural network model
             model = NeuralNetwork(n_features=X_train_inner.shape[1], n_hidden_units=h)
             mse = train_and_evaluate_model(model, X_train_inner, y_train_inner, X_val_inner, y_val_inner)
@@ -375,3 +374,5 @@ timestamp = pd.Timestamp.now()
 results_df.to_csv(f"../output/results_{timestamp}.csv", index=False)
 
 # TODO: Plots for the results
+
+# Latex tables
