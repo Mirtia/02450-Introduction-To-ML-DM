@@ -234,6 +234,8 @@ class NeuralNetwork(torch.nn.Module):
         x = self.relu(x)
         # TODO: Try with ReLU as well
         # x = self.relu(x)
+        # another relu layer
+        # x = self.relu(x)
         x = self.linear2(x)
         return x
 
@@ -279,6 +281,7 @@ def train_and_evaluate_model(model, X_train, y_train, X_val, y_val, learning_rat
 
 # Test for different hidden unit sizes (1 to 10)
 hidden_unit_sizes = list(range(1, 17))
+# hidden_unit_sizes = [1, 2, 4, 8, 16, 32, 64, 128]
 
 # Two-thirds rule for hidden units
 # (2/3) * 8  + 1 = 6.33 so we can try till 2 x (number of features) = 16
